@@ -20,13 +20,19 @@ variable "instance_type" {
 }
 
 
+locals {
+  project_name = "wakudoki"
+}
+
+
+
 resource "aws_instance" "created_by_terraform" {
   ami           = "ami-01b32aa8589df6208"
 #   instance_type = "t2.micro"
   instance_type = var.instance_type
 
   tags = {
-    Name = "created_by_terraform"
+    Name = "this is -${local.project_name} project and created_by_terraform."
   }
 }
 
