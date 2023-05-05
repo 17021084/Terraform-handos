@@ -9,14 +9,17 @@ terraform {
 
 provider "aws" {
   # Configuration options
-  #   profile = "trungadmin"
-  region = "ap-northeast-1"
+  profile = "trungadmin"
+  region  = "ap-northeast-1"
 }
 
 
 resource "aws_instance" "created_by_terraform" {
   ami           = "ami-01b32aa8589df6208"
   instance_type = "t2.micro"
-  
+
+  tags = {
+    Name = "created_by_terraform"
+  }
 }
 
