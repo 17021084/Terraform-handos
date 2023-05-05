@@ -1,14 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "4.65.0"
-    }
-  }
-}
-
-
-
 
 resource "aws_instance" "created_by_terraform" {
   ami = "ami-01b32aa8589df6208"
@@ -22,6 +11,10 @@ resource "aws_instance" "created_by_terraform" {
 
 
 # lấy từ đây  https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance#example-usage
+
+
+/* 
+# not neccesary so comment this to reduce process time
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
@@ -43,7 +36,7 @@ module "vpc" {
     Environment = "dev"
   }
 }
-
+*/
 
 
 
