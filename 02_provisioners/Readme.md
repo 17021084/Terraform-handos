@@ -9,6 +9,9 @@
 # gen sshkey
 ssh-keygen -t rsa 
 # just hand ons demo so save pub in this folder isnt problem
+# -> fillname ex: terraform
+
+chmod 400 terraform
 
 ```
 
@@ -26,3 +29,9 @@ ssh-keygen -t rsa
 4. create security group and open ssh 22 and http 80
 </br>
 Note: where i put public ipv4 on browser  it will be "https://ipv4" so we cant touch
+
+```
+ ssh ec2-user@$(terraform output -raw public_ip) -i terraform
+
+passphase -> yes
+```

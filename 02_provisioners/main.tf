@@ -74,7 +74,7 @@ resource "aws_security_group" "sg_my_server" {
 # to access ec2
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDrMjhx5KM8utAm09H80TZ9qh9KqCb+8JrYYFch+avhl3SlrkaDeXtSp7WqQhslyEpo+8gbsiUfGW7bnoSbFn9+9ZdSEcogxdfJ1GA/J1xtIKwM8jDf+q4klOmhatpo8g60sURJT6qk2kEoiljnQtepCBHTs1L7y4xx68S59716tmAJPhbmfRW4MCpQDmJavZggeOpvLjTVExkq0GkhpFWjw5qY53WnWqR6rYSIKhqHaIkUy7Df2anb3ysrgbwUhpMZkuRr7eIKXDEoqUTqT1atn7TIJr4eHxQ5WritVwAVC7dXumxBz9cHDlBMOWb959GXybUxtJulOuo+KSPlHtoIeJLENeQrRHZ64GuV9spsG2Bl3sVz/Xt0iG0bm2g6yxYLN6ulsVws6uP9HmphdLb7JyRVzEuOc/ik+nqFztu4kGpgncJ19mz08y+LeabB/qZCLZtqgE5qlKhBppQCQ1i5ILuDHZ2zJedtgc60li04b8mi8QnWvThTCFuhyJVtxFU= doquangtrung@Dos-MacBook-Pro.local"
+  public_key = file("./terraform.pub")
 }
 
 
@@ -82,13 +82,13 @@ resource "aws_instance" "my_server" {
   ami = "ami-01b32aa8589df6208"
   #   instance_type = "t2.micro"
   instance_type          = var.instance_type
-  key_name               = aws_key_pair.deployer.key_name
+ 
   vpc_security_group_ids = [aws_security_group.sg_my_server.id]
 
 
   # note: use intepolation
   user_data              = "${data.template_file.user_data.rendered}"
-
+  key_name               = "${aws_key_pair.deployer.key_name}"
 
 
   tags = {
@@ -98,6 +98,6 @@ resource "aws_instance" "my_server" {
 
 
 
-output "public_id" {
+output "public_ip" {
   value = aws_instance.my_server.public_ip
 }
