@@ -35,3 +35,8 @@ Note: where i put public ipv4 on browser  it will be "https://ipv4" so we cant t
 
 passphase -> yes
 ```
+
+
+### Create key in local via tls private key
+
+https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key

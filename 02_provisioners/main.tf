@@ -71,10 +71,28 @@ resource "aws_security_group" "sg_my_server" {
 }
 
 
+
 # to access ec2
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
-  public_key = file("./terraform.pub")
+  # public_key = file("./terraform.pub")
+  public_key = tls_private_key.rsa-example.public_key_openssh
+}
+
+
+# RSA key of size 4096 bits
+resource "tls_private_key" "rsa-example" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+#save privatekey
+resource "local_file" "terraform-key" {
+
+  content =  tls_private_key.rsa-example.private_key_pem
+  filename = "terraform-new"
+  file_permission = "0400"
+
 }
 
 
@@ -82,7 +100,6 @@ resource "aws_instance" "my_server" {
   ami = "ami-01b32aa8589df6208"
   #   instance_type = "t2.micro"
   instance_type          = var.instance_type
- 
   vpc_security_group_ids = [aws_security_group.sg_my_server.id]
 
 
@@ -100,4 +117,9 @@ resource "aws_instance" "my_server" {
 
 output "public_ip" {
   value = aws_instance.my_server.public_ip
+}
+
+
+output "file_path" {
+  value = local_file.terraform-key.filename
 }
