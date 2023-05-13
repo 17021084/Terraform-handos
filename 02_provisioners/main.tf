@@ -131,6 +131,20 @@ resource "aws_instance" "my_server" {
 
   }
 
+  # file
+  provisioner "file" {
+    source = "./test-provisioner-file.txt"
+    destination = "test-upload-file.txt"
+    # content = "abc"
+     connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file("./terraform")
+      host        = self.public_ip
+    }
+
+  }
+
 
 
 
