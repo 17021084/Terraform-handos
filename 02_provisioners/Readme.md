@@ -40,3 +40,11 @@ passphase -> yes
 ### Create key in local via tls private key
 
 https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key
+
+
+
+
+
+
+### 
+local file dont work with remote state ( terraform cloud)
