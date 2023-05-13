@@ -89,27 +89,49 @@ resource "aws_key_pair" "deployer" {
 # # save privatekey
 resource "local_file" "terraform-key" {
   # content =  tls_private_key.rsa-example.private_key_pem
-  content =  "tls_private_key.rsa-example.private_key_pem"
-  filename = "./terraform-new"
+  content         = "tls_private_key.rsa-example.private_key_pem"
+  filename        = "./terraform-new"
   file_permission = "0400"
 }
 
 
 resource "aws_instance" "my_server" {
-  ami = "ami-01b32aa8589df6208"
-    instance_type = "t2.micro"
+  ami           = "ami-01b32aa8589df6208"
+  instance_type = "t2.micro"
   # instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.sg_my_server.id]
   # note: use intepolation
-  user_data              = "${data.template_file.user_data.rendered}"
-  key_name               = "${aws_key_pair.deployer.key_name}"
+  user_data = data.template_file.user_data.rendered
+  key_name  = aws_key_pair.deployer.key_name
   tags = {
     Name = "Created by terraform"
   }
 
+
+  # this exec in local 
   provisioner "local-exec" {
     command = " echo ${self.private_ip} >> private_ips.txt"
   }
+
+
+  # this exec in remote ec2 
+  provisioner "remote-exec" {
+    inline = [
+      # "echo ${self.private_ip} >> home/ec2-user/private_ips.txt"
+      "mkdir testtt",
+      "mkdir testtt2",
+      "echo ${self.private_ip} >> private_ip.txt"
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file("./terraform")
+      host        = self.public_ip
+    }
+
+  }
+
+
 
 
 }
