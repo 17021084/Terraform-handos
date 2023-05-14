@@ -151,6 +151,18 @@ resource "aws_instance" "my_server" {
 }
 
 
+# null resource
+# learn more about usecases of null resource view here: https://jhooq.com/terraform-null-resource/
+resource "null_resource" "status" {
+  provisioner "local-exec" {
+    command = " aws ec2 wait instance-status-ok --instance-ids ${aws_instance.my_server.id}"
+  }
+
+  depends_on = [ aws_instance.my_server ]
+
+}
+
+
 
 output "public_ip" {
   value = aws_instance.my_server.public_ip
