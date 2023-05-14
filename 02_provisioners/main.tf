@@ -1,11 +1,11 @@
 terraform {
   # setup remote state servivers
-  backend "remote" {
-    organization = "dotrunghg1999"
-    workspaces {
-      name = "Provisioner-Handsons"
-    }
-  }
+  # backend "remote" {
+  #   organization = "dotrunghg1999"
+  #   workspaces {
+  #     name = "Provisioner-Handsons"
+  #   }
+  # }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -75,42 +75,91 @@ resource "aws_security_group" "sg_my_server" {
 # to access ec2
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
-  # public_key = file("./terraform.pub")
-  public_key = tls_private_key.rsa-example.public_key_openssh
+  public_key = file("./terraform.pub")
+  # public_key = tls_private_key.rsa-example.public_key_openssh
 }
 
 
 # RSA key of size 4096 bits
-resource "tls_private_key" "rsa-example" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
+# resource "tls_private_key" "rsa-example" {
+#   algorithm = "RSA"
+#   rsa_bits  = 4096
+# }
 
-#save privatekey
+# # save privatekey
 resource "local_file" "terraform-key" {
-
-  content =  tls_private_key.rsa-example.private_key_pem
-  filename = "terraform-new"
+  # content =  tls_private_key.rsa-example.private_key_pem
+  content         = "tls_private_key.rsa-example.private_key_pem"
+  filename        = "./terraform-new"
   file_permission = "0400"
-
 }
 
 
 resource "aws_instance" "my_server" {
-  ami = "ami-01b32aa8589df6208"
-  #   instance_type = "t2.micro"
-  instance_type          = var.instance_type
+  ami           = "ami-01b32aa8589df6208"
+  instance_type = "t2.micro"
+  # instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.sg_my_server.id]
-
-
   # note: use intepolation
-  user_data              = "${data.template_file.user_data.rendered}"
-  key_name               = "${aws_key_pair.deployer.key_name}"
-
-
+  user_data = data.template_file.user_data.rendered
+  key_name  = aws_key_pair.deployer.key_name
   tags = {
     Name = "Created by terraform"
   }
+
+
+  # this exec in local 
+  provisioner "local-exec" {
+    command = " echo ${self.private_ip} >> private_ips.txt"
+  }
+
+
+  # this exec in remote ec2 
+  provisioner "remote-exec" {
+    inline = [
+      # "echo ${self.private_ip} >> home/ec2-user/private_ips.txt"
+      "mkdir testtt",
+      "mkdir testtt2",
+      "echo ${self.private_ip} >> private_ip.txt"
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file("./terraform")
+      host        = self.public_ip
+    }
+
+  }
+
+  # file
+  provisioner "file" {
+    source = "./test-provisioner-file.txt"
+    destination = "test-upload-file.txt"
+    # content = "abc"
+     connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file("./terraform")
+      host        = self.public_ip
+    }
+
+  }
+
+
+
+
+}
+
+
+# null resource
+# learn more about usecases of null resource view here: https://jhooq.com/terraform-null-resource/
+resource "null_resource" "status" {
+  provisioner "local-exec" {
+    command = " aws ec2 wait instance-status-ok --instance-ids ${aws_instance.my_server.id}"
+  }
+
+  depends_on = [ aws_instance.my_server ]
+
 }
 
 
@@ -120,6 +169,6 @@ output "public_ip" {
 }
 
 
-output "file_path" {
-  value = local_file.terraform-key.filename
-}
+# output "file_path" {
+#   value = local_file.terraform-key.filename
+# }
