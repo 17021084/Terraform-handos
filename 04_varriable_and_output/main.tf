@@ -45,3 +45,11 @@ resource "aws_instance" "my_server" {
     Name = var.ec2name
   }
 }
+
+
+
+output "ec2_public_ip" {
+  value = aws_instance.my_server.public_ip
+  sensitive = true
+  
+}
