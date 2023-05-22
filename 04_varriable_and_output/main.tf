@@ -18,3 +18,7 @@ output "public_ip" {
 output "instance_type" {
   value = module.aws_server.ec2_instance_type
 }
+
+output "datasource" {
+  value =module.aws_server.data-source
+}
