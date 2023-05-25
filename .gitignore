@@ -2,4 +2,7 @@
 # ignore all heavy file
 */.terraform/*
 
+*/*/.terraform/*
+
+
 */tfc-?/*
