@@ -14,7 +14,7 @@ provider "aws" {
 
 
 resource "aws_instance" "ec2_server" {
-  # create resource for each value inside for_each
+  # create mutil instances of a resource.  each value inside for_each
   for_each = {
     config_1 = {
       type = "t2.micro"
